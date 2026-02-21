@@ -14,7 +14,7 @@ MY_CHAT = os.getenv("MY_CHAT")
 HEADERS = {"Client-Id": f"{CLIENT_ID}", "Authorization": "Bearer {}"}
 GRANT_TYPE = "client_credentials"
 
-URL_CHANNEL = "https://www.twitch.tv/ilyabackfist"
+URL_CHANNEL = "https://www.twitch.tv/{}".format(LOGIN)
 GET_TOKEN_TWICH = "https://id.twitch.tv/oauth2/token"
 GET_USER_TWICH = "https://api.twitch.tv/helix/users?login={}"
 GET_SCHEDULER_CHANNEL = (
