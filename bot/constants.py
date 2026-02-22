@@ -21,3 +21,4 @@ GET_SCHEDULER_CHANNEL = (
     "https://api.twitch.tv/helix/schedule?broadcaster_id={}"
 )
 GET_STREAM_TWICH = "https://api.twitch.tv/helix/streams?user_id={}"
+GET_VIDEOS_TWICH = "https://api.twitch.tv/helix/videos?user_id={}"

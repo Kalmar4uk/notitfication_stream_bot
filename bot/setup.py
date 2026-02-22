@@ -2,7 +2,7 @@ import nest_asyncio
 from telegram.ext import ApplicationBuilder, CommandHandler
 
 from bot.constants import TOKEN_BOT
-from bot.handlers import response_stream, hello
+from bot.handlers import hello, response_last_video, response_stream
 
 nest_asyncio.apply()
 
@@ -14,5 +14,6 @@ async def start() -> None:
 
     app.add_handler(CommandHandler("start", hello))
     app.add_handler(CommandHandler("check", response_stream))
+    app.add_handler(CommandHandler("last_video", response_last_video))
 
     await app.run_polling()

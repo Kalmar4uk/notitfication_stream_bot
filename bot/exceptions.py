@@ -7,6 +7,6 @@ class NotValidСredentials(Exception):
 
 class NotStreamNow(Exception):
     """Ошибка отсутствия стрима"""
-    def __init__(self, error: str = "Натекущий момент нет активного стрима"):
+    def __init__(self, error: str = "На текущий момент нет активного стрима"):
         self.error = error
         super().__init__(self.error)

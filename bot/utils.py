@@ -1,63 +1,75 @@
-import requests
 import json
+from datetime import datetime, timedelta
 
-from bot.constants import (CLIENT_ID, GET_STREAM_TWICH, GET_TOKEN_TWICH,
-                           GRANT_TYPE, HEADERS, SECRET_KEY, USER_ID)
-from bot.exceptions import NotValidСredentials, NotStreamNow
+import requests
 
-
-async def get_token_for_twich() -> str:
-    try:
-        token_request = requests.post(
-            GET_TOKEN_TWICH,
-            data={
-                "client_id": CLIENT_ID,
-                "client_secret": SECRET_KEY,
-                "grant_type": GRANT_TYPE
-            }
-        )
-    except Exception as e:
-        raise NotValidСredentials(error=str(e))
-
-    if token_request.status_code == 200:
-        token_response: str = token_request.json().get("access_token")
-    else:
-        raise NotValidСredentials(
-            error=(
-                f"status = {token_request.json().get('status')}, "
-                f"message = {token_request.json().get('message')}"
-            )
-        )
-
-    return token_response
+from bot.constants import GET_STREAM_TWICH, GET_VIDEOS_TWICH, HEADERS, USER_ID
+from bot.decorators import get_token
+from bot.exceptions import NotStreamNow
 
 
-async def check_stream() -> str:
-    try:
-        access_token = await get_token_for_twich()
-    except NotValidСredentials as e:
-        raise NotValidСredentials(error=str(e))
+async def prepare_datetime_from_response_twich(date_string: str) -> datetime:
+    date_string = date_string.replace("Z", "+00:00")
+    utc_time = datetime.fromisoformat(date_string)
+    msk_time = utc_time + timedelta(hours=3)
+    return msk_time.strftime("%d.%m.%Y %H:%M")
 
-    HEADERS["Authorization"] = f"Bearer {access_token}"
+
+@get_token
+async def check_stream(token: str | None = None) -> tuple[str, str | None]:
+    HEADERS["Authorization"] = f"Bearer {token}"
 
     new_headres = HEADERS
+
     request_stream = requests.get(
         GET_STREAM_TWICH.format(USER_ID),
         headers=new_headres
-    ).json().get("data")
+    ).json().get("data")[0]
 
     if not request_stream:
-        raise NotStreamNow
+        raise NotStreamNow()
     else:
-        result = (
-            f"Начался стрим!\n"
-            f"<b>{request_stream['data'][0]['title']}</b>\n"
-            f"Играем в <b>{request_stream['data'][0]['game_name']}</b>\n"
-            f"Начался в <b>{request_stream['data'][0]['started_at']}</b>"
+        prepare_datetime_start = await prepare_datetime_from_response_twich(
+            request_stream.get("started_at")
         )
-        photo = request_stream['data'][0][
-            'thumbnail_url'.format(
+        result = (
+            f"Начался стрим!\n\n"
+            f"<b>{request_stream.get('title')}</b>\n"
+            f"Играем в <b>{request_stream.get('game_name')}</b>\n"
+            f"Начался <b>{prepare_datetime_start}</b>"
+        )
+
+        try:
+            photo = request_stream.get(
+                'thumbnail_url'
+            ).format(
                 width=1960, height=1080
             )
-        ]
+        except AttributeError:
+            photo = None
+
         return result, photo
+
+
+@get_token
+async def get_last_video(token: str | None = None):
+    HEADERS["Authorization"] = f"Bearer {token}"
+
+    new_headres = HEADERS
+    request_video = requests.get(
+        GET_VIDEOS_TWICH.format(USER_ID),
+        headers=new_headres
+    ).json().get("data")[0]
+
+    prepare_datetime_start = await prepare_datetime_from_response_twich(
+        request_video.get("created_at")
+    )
+
+    result = (
+        f"Прошедший недавно стрим\n\n"
+        f"<b>{request_video.get('title')}</b>\n\n"
+        f"Проходил <b>{prepare_datetime_start}</b>\n"
+        f"Ссылка на видео {request_video.get('url')}"
+    )
+
+    return result
