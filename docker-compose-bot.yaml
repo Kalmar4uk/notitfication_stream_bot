@@ -1,0 +1,4 @@
+services:
+  notification_bot:
+    image: kalmmar4uk/notification_stream_bot
+    env_file: .env

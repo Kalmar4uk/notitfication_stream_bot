@@ -10,3 +10,10 @@ class NotStreamNow(Exception):
     def __init__(self, error: str = "На текущий момент нет активного стрима"):
         self.error = error
         super().__init__(self.error)
+
+
+class ExceptionRequestTwitch(Exception):
+    """Ошибка запроса к твичу"""
+    def __init__(self, error: str | None = None):
+        self.error = error
+        super().__init__(self.error)
