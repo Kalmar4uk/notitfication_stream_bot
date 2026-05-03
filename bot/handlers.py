@@ -15,7 +15,7 @@ async def hello(update: Update, context: ContextTypes):
 async def response_stream(update: Update, context: ContextTypes):
     logger.info("Получили команду запроса стрима")
     try:
-        result, photo = await check_stream()
+        _, result, photo = await check_stream()
     except NotValidСredentials as e:
         logger.error(f"Возникла проблема при авторизации: {str(e)}")
         await update.message.reply_text(

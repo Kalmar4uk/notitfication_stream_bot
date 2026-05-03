@@ -7,7 +7,9 @@ from bot.constants import MY_CHAT
 
 async def check_scheduler_stream(app: ApplicationBuilder) -> None:
     try:
-        result, photo = await check_stream()
+        id_stream, result, photo = await check_stream()
+        if id_stream == app.bot_data.get("id_stream"):
+            raise NotStreamNow()
     except NotValidСredentials as e:
         logger.error(f"Возникла проблема при авторизации: {str(e)}")
     except NotStreamNow as e:
@@ -25,3 +27,4 @@ async def check_scheduler_stream(app: ApplicationBuilder) -> None:
             caption=result,
             parse_mode="HTML"
         )
+        app.bot_data["id_stream"] = id_stream

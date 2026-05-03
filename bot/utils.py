@@ -33,28 +33,30 @@ async def check_stream(token: str | None = None) -> tuple[str, str | None]:
 
     if not request_stream:
         raise NotStreamNow()
-    else:
-        logger.info("Ответ получен, готовим сообщение для отправки в чат")
-        prepare_datetime_start = await prepare_datetime_from_response_twich(
-            request_stream[0].get("started_at")
-        )
-        result = (
-            f"Начался стрим!\n\n"
-            f"<b>{request_stream[0].get('title')}</b>\n"
-            f"Играем в <b>{request_stream[0].get('game_name')}</b>\n"
-            f"Начался <b>{prepare_datetime_start}</b>"
-        )
 
-        try:
-            photo = request_stream[0].get(
-                'thumbnail_url'
-            ).format(
-                width=1960, height=1080
-            )
-        except AttributeError:
-            photo = None
+    logger.info("Ответ получен, готовим сообщение для отправки в чат")
+    prepare_datetime_start = await prepare_datetime_from_response_twich(
+        request_stream[0].get("started_at")
+    )
+    result = (
+        f"Начался стрим!\n\n"
+        f"<b>{request_stream[0].get('title')}</b>\n"
+        f"Играем в <b>{request_stream[0].get('game_name')}</b>\n"
+        f"Начался <b>{prepare_datetime_start}</b>"
+    )
 
-        return result, photo
+    id_stream = request_stream[0].get("id")
+
+    try:
+        photo = request_stream[0].get(
+            'thumbnail_url'
+        ).format(
+            width=1960, height=1080
+        )
+    except AttributeError:
+        photo = None
+
+    return id_stream, result, photo
 
 
 @get_token
