@@ -17,3 +17,7 @@ class ExceptionRequestTwitch(Exception):
     def __init__(self, error: str | None = None):
         self.error = error
         super().__init__(self.error)
+
+
+class ErrorStartSchedule(Exception):
+    pass
